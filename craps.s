@@ -210,11 +210,14 @@ main:
     handle_payout:
         ldr     r6, =cur_bet        @ put current bet into r6  
         ldr     r6, [r6]
+        cmp     r9, #1              @ if it was a tie (r9=1x) then skip message   
+        beq     skip_prt 
         mov     r1, r6              @ put it in r1 to printf
         ldr     r0, =win_message    
         bl      greenText
         bl      printf
         bl      resetText
+    skip_prt:
         mov     r0, r6              @ put bet in r0 to pass to wallet
         mul     r0, r9              @ (bet * payout rate)
         bl      addWallet           @ add total payout to Wallet

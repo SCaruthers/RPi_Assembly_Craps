@@ -239,9 +239,8 @@ resetText:
 
  
 @ -----------------------------------
-@   Data Section
+@   Data Section 
 @ -----------------------------------
-
 
     .data
     .balign 4
@@ -251,7 +250,7 @@ die1:           .ascii  "  ------- "
                 .ascii  " |   o   |"
                 .ascii  " |       |"
                 .ascii  "  ------- "
-                
+
 die2:           .ascii  "  ------- "
                 .ascii  " | o     |"
                 .ascii  " |       |"

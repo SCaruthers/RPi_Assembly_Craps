@@ -65,7 +65,7 @@ quit_message:   .asciz "\nOk.\nYou started with $100 and are leaving with $%d.\n
 congrats_msg:   .asciz "Congratulations!!"
 too_bad_msg:    .asciz "Better luck next time."
 cont_string:    .asciz "Hit <Enter> to roll again..."
-erase_string:   .asciz "\r                            \n"
+erase_string:   .asciz "\033[F\033[K \n"   @ go to previous line & delete it
 bankrupt_msg:   .asciz "You lost all your money!\nBye Bye.\n"
 int_format:     .asciz "%d"
 
@@ -387,19 +387,24 @@ subWallet:
 @   waitEnter(): prompts user to hit Enter, then waits
 
 waitEnter:
+waitEnter:
         @ param:  nothing
         @ returns nothing, and does not use anything the user inputs
-        @ relies on dummy string address to hold user input.
+        @ relies on two strings in memory.  One for the prompt, the other to erase it.
         
         push    {r0-r6, lr}           @ protect some of the registers from printf, scanf 
         
-        ldr     r0, =cont_string
+        ldr     r0, =cont_string        @ print the prompt string
         bl      printf
 
+    wait_char_loop:
         bl      getchar
+        cmp     r0, #0x0A               @ did user type more than <enter> ?
+        bne     wait_char_loop          @ keep reading characters until CR.
         
-        ldr     r0, =erase_string         @ erase the prompt 
+        ldr     r0, =erase_string       @ erase the prompt 
         bl      printf
     
         pop     {r0-r6, pc}
         
+     

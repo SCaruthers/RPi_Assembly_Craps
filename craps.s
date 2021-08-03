@@ -64,7 +64,7 @@ roll_message:   .asciz "Your roll is %u.\n"
 quit_message:   .asciz "\nOk.\nYou started with $100 and are leaving with $%d.\n%s Thanks for playing!\n\n"
 congrats_msg:   .asciz "Congratulations!!"
 too_bad_msg:    .asciz "Better luck next time."
-cont_string:    .asciz "Hit <Enter> to roll again..."
+cont_string:    .asciz "Hit <Enter> to roll dice..."
 erase_string:   .asciz "\033[F\033[K \n"   @ go to previous line & delete it
 bankrupt_msg:   .asciz "You lost all your money!\nBye Bye.\n"
 int_format:     .asciz "%d"
@@ -123,10 +123,12 @@ main:
         ldr     r2, [r1]
         sub     r2, r0              @ already tested that r0 < r2
         str     r2, [r1]            @ put reduced amount back in wallet
-    
+        
+        bl      waitEnter           @ add extra "wait" before loop in case enter held too long
+        
     open_roll:
         bl      waitEnter           @ ask for user to continue
-        
+    
         mov     r0, #NUM_DICE       @ set r0 as param # dice to roll 
         bl      rollDice            @ returns 2 dice in r0, r1
         mov     r4, r0              @ put 1st result of roll in r4 to save

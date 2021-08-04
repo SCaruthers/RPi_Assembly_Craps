@@ -124,8 +124,6 @@ main:
         sub     r2, r0              @ already tested that r0 < r2
         str     r2, [r1]            @ put reduced amount back in wallet
         
-        bl      waitEnter           @ add extra "wait" before loop in case enter held too long
-        
     open_roll:
         bl      waitEnter           @ ask for user to continue
     
@@ -335,12 +333,19 @@ get_bet:
         movne   r0, #PASS           @ else, set to 0.
         str     r0, [r2]            @ and put answer in variable
         
+    clear_buffer:                   @ scanf leaves \n in buffer, so
+        bl      getchar             @ go through the buffer, before exit
+        cmp     r0, #0x0A           @ is it a CR ?
+        bne     clear_buffer        @ keep reading characters until CR.
+        
     get_bet_exit:    
         ldr     r0, =cur_bet        @ put value of bet in r0 for return
         ldr     r0, [r0] 
         ldr     r1, =cur_pass_bet   @ put value of flag in r1 for return
         ldr     r1, [r1]
-        pop     {r2-r8, pc}
+
+        
+        pop     {r2-r8, pc}         @ restore registers and exit
 
 
 @ -----------------------------------
@@ -389,12 +394,11 @@ subWallet:
 @   waitEnter(): prompts user to hit Enter, then waits
 
 waitEnter:
-waitEnter:
         @ param:  nothing
         @ returns nothing, and does not use anything the user inputs
         @ relies on two strings in memory.  One for the prompt, the other to erase it.
         
-        push    {r0-r6, lr}           @ protect some of the registers from printf, scanf 
+        push    {r0-r4, lr}             @ protect some of the registers from printf, scanf 
         
         ldr     r0, =cont_string        @ print the prompt string
         bl      printf
@@ -407,6 +411,6 @@ waitEnter:
         ldr     r0, =erase_string       @ erase the prompt 
         bl      printf
     
-        pop     {r0-r6, pc}
+        pop     {r0-r4, pc}
         
      

@@ -80,8 +80,8 @@ comp_win_msg:     .asciz "\033[1;31m\n\n            Computer Wins\n\n"
 erase_string:     .asciz "\033[F\033[K \n"   @ go to previous line & delete it
 int_format:       .asciz "%d"
 roll_choice_str:  .ascii "What would you like to do?\n"
-                  .ascii "1. Roll Again\n"
-                  .ascii "2. Hold and Bank Hand\n"
+                  .ascii "1. Roll Again                  \n"
+                  .ascii "2. Hold and Bank Hand          \n"
                   .asciz "   Enter the # of your choice: "
 roll_choice:      .int   0
 
@@ -274,7 +274,7 @@ main:
          mov   r0, r6                  @ put current player into r0
          bl    show_winner_message     @ print the right message
          
-         msSleep 500
+         msSleep 2000                  @ wait 2s, in case window will close
          pop   {ip, pc}
 
  
@@ -554,6 +554,9 @@ print_hand_score:
          ldr   r0, =curr_hand_str   @ point to string for current hand score
          bl    my_print
          bl    resetText
+         ldr   r0, =(erase_string+3)   @ point to erase to end of line
+         bl    my_print
+
          pop   {r0-r1, pc}
 
 @ -----------------------------------

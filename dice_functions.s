@@ -315,8 +315,6 @@ rollDice:
  clrscrn:
                 push    {r0-r8, lr}
                 ldr     r1, =formfeed
-                @ldr     r2, =lenff
-                @sub     r2, r2, r1
                 mov     r2, #(lenff-formfeed)
                 mov     r0, #0
                 mov     r7, #4

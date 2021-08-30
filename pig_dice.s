@@ -1,5 +1,5 @@
 @ 
-@ craps.s 
+@ pig_dice.s 
 @   Written in ARM Assembly by S. Caruthers, 2021
 @   Basic dice game of Pig
 @   Requires functions in dice_functions.s
@@ -73,10 +73,10 @@ welcome_msg:      .ascii "\033[1;97mWelcome to the Dice Game of Pig!!\n\033[0m"
 cont_string:      .asciz "Hit <Enter> to continue..."
 human_turn_str:   .asciz "    Human's Turn             \n\n"
 comp_turn_str:    .asciz "    Computer's Turn          \n\n"
-comp_think_str:   .asciz "    Computer is playing...   \n\033[K\n\033[K\n\033[K"
+comp_think_str:   .asciz "    Computer is rolling...   \n\033[K\n\033[K\n\033[K"
 comp_holds_str:   .asciz "    Computer holds...        \n\033[K\n\033[K\n\033[K"
-human_win_msg:    .asciz "\007\033[1;32m\n\n            !! You Win !!\n\n"
-comp_win_msg:     .asciz "\033[1;31m\n\n            Computer Wins\n\n"
+human_win_msg:    .asciz "\033[20;1H\007\033[1;32m\n\n            !! You Win !!\n\n"
+comp_win_msg:     .asciz "\033[20;1H\033[1;31m\n\n            Computer Wins\n\n"
 erase_string:     .asciz "\033[F\033[K \n"   @ go to previous line & delete it
 int_format:       .asciz "%d"
 roll_choice_str:  .ascii "What would you like to do?\n"
@@ -196,7 +196,7 @@ main:
    top_loop:
    
          @ Randomly choose first player by rolling die.
-         @ If 1-3, the Human, else, Computer
+         @ If 1-3, the Human goes first, else, Computer
          @ Then print who it is
          
          bl    rollDie              @ r0 gets value 
@@ -272,9 +272,10 @@ main:
          
    its_a_winner:
          mov   r0, r6                  @ put current player into r0
+         bl    update_player_score
          bl    show_winner_message     @ print the right message
          
-         msSleep 2000                  @ wait 2s, in case window will close
+         msSleep 2000                  @ wait 2s in case calling window will close
          pop   {ip, pc}
 
  
@@ -480,14 +481,16 @@ update_progress_bar:
       
          push     {r0-r4, lr}
          
-         mov      r3, #0                     @ counter for # of 10s
+         mov      r3, #0                     @ reset counter for # of 10s
          mov      r4, #'#'                   @ hold character for progress bar
    
    upb_count_loop:
          subs     r0, #10                    @ subtract 10 from score
          ble      upb_done_count             @ if <= 0, then we are done
          add      r3, r3, #1                 @ otherwise, add one to counter
-         bal      upb_count_loop             @ go back and repeat
+         cmp      r3, #10                    @ Error check: if already 10, 
+         beq      upb_done_count             @ ...then quit 
+         bal      upb_count_loop             @ else, go back and repeat
    
    upb_done_count:
          cmp      r3, #0                     @ if counter is 0, nothing to do

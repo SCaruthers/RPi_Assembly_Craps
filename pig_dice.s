@@ -199,7 +199,7 @@ main:
          @ If 1-3, the Human goes first, else, Computer
          @ Then print who it is
          
-         bl    rollDie              @ r0 gets value 
+         bl    rollDie               @ r0 gets value 
          cmp   r0, #3
          movle r6, #HUMAN            @ if <= 3, then Human (0)
          movgt r6, #(HUMAN+1)        @ if >3, then Computer (1)
@@ -478,12 +478,22 @@ update_progress_bar:
       @ Progress bar is a string of 12 characters.
       @ Char [0] and [11] are the end points, Chars [1] - [10] are % progress markers
       @ Since winning score is 100, there is 1 marker per 10 points.
+      @ Bar extends per decade at 11, 21, etc.  
+      @ At game end, there is an exception that bar should be 100% at r0=100
       
          push     {r0-r4, lr}
          
          mov      r3, #0                     @ reset counter for # of 10s
          mov      r4, #'#'                   @ hold character for progress bar
    
+         @ count the number of "tens" in the score.
+         @ but first, check the special case of r0 = 100
+         
+         cmp      r0, #100                   @ is score exactly 100?
+         bne      upb_count_loop             @ if not, then do the right thing
+         mov      r3, #10                    @ if it is, just set the bar to 10
+         bal      upb_update_loop            @ and quit.
+         
    upb_count_loop:
          subs     r0, #10                    @ subtract 10 from score
          ble      upb_done_count             @ if <= 0, then we are done

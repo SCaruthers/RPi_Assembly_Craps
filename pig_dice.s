@@ -75,7 +75,7 @@ human_turn_str:   .asciz "    Human's Turn             \n\n"
 comp_turn_str:    .asciz "    Computer's Turn          \n\n"
 comp_think_str:   .asciz "    Computer is rolling...   \n\033[K\n\033[K\n\033[K"
 comp_holds_str:   .asciz "    Computer holds...        \n\033[K\n\033[K\n\033[K"
-human_win_msg:    .asciz "\033[20;1H\007\033[1;32m\033[5m\n\n            !! You Win !!\n\n"
+human_win_msg:    .asciz "\033[20;1H\007\033[1;32m\n\n            !! \033[5mYou Win\033[25m !!\n\n"
 comp_win_msg:     .asciz "\033[20;1H\033[1;31m\n\n            Computer Wins\n\n"
 erase_string:     .asciz "\033[F\033[K \n"   @ go to previous line & delete it
 int_format:       .asciz "%d"
@@ -231,7 +231,7 @@ main:
          
          bl    rollDie              @ roll a Die and put value in r0
          
-         @ DEBUG CODE: make roll always 5
+         @ DEBUG CODE: make roll always 6
          @mov   r0, #6
          
          @ Print the die (with animation):

@@ -26,6 +26,7 @@
 @   Constants
 @ -----------------------------------
 
+
 .equ STDOUT, 1                           @ Linux output console
 .equ EXIT,   1                           @ Linux syscall
 .equ WRITE,  4                           @ Linux syscall
@@ -33,6 +34,8 @@
 .equ HUMAN, 0                            @ Flag for Human Player
 .equ ROLL, 1                             @ Flag to roll again
 .equ HOLD, 2                             @ Flag to hold and bank hand 
+.equ MIN_WIN_COL, 50                     @ minimum cols for terminal
+.equ MIN_WIN_ROW, 28                     @ minimum lines for terminal
 
 
 @ -----------------------------------
@@ -70,6 +73,7 @@ welcome_msg:      .ascii "\033[1;97mWelcome to the Dice Game of Pig!!\n\033[0m"
                   .ascii "the total for the hand.  But if you roll a 1, you\n"
                   .ascii "lose the points for the hand.  Keep repeating\n"
                   .asciz "until the banked total is 100 or more.\n\n"
+scrn_err_msg:     .asciz "Error: Terminal window size must be \nat least 50 cols x 28 rows\n"
 cont_string:      .asciz "Hit <Enter> to continue..."
 human_turn_str:   .asciz "    Human's Turn             \n\n"
 comp_turn_str:    .asciz "    Computer's Turn          \n\n"
@@ -167,6 +171,13 @@ main:
          @ Initialize things:
          bl     seedRandom          @ call function to seed random number generator
          bl     clrscrn             @ clear the screen
+         
+         @ check screen size        @ call function to check the terminal window
+         mov   r0, #MIN_WIN_ROW     @ passing parameters of Min Lines
+         mov   r1, #MIN_WIN_COL     @ and Min Columns
+         bl    checkWinSz           @ returns r0=0 if OK (greater than mins)
+         cmp   r0, #0
+         bne   screen_error         @ so anything else should be error 
 
          @ Print Banner and Welcome Message:
          bl     pinkText            @ make banner text pink
@@ -277,7 +288,16 @@ main:
          mov   r0, r6                  @ put current player into r0
          bl    update_player_score
          bl    show_winner_message     @ print the right message
+         bal   final_exit_to_OS
+   
+   screen_error:
+         ldr   r0, =scrn_err_msg       @ print the screen too small error 
+         bl    redText
+         bl    my_print
+         bl    resetText
+         mov   r0, #-1                 @ return a -1 as error
          
+   final_exit_to_OS:
          msSleep 2000                  @ wait 2s in case calling window will close
          pop   {ip, pc}
 

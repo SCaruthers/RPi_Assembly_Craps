@@ -2,14 +2,14 @@
 @ pig_dice.s 
 @   Written in ARM Assembly by S. Caruthers, 2021
 @   Basic dice game of Pig
-@   Requires functions in dice_functions.s
+@   Requires functions in dice_functions.s and ioctl_functions.s
 @
 @   Registers used consistently:
 @       r5  -  Current player total score (banked + hand)
 @       r6  -  Current Player: 0 = Human, 1 = Computer
 @
 @   Assemble the program using Gnu C Compiler:
-@       gcc -o pig pig_dice.s dice_functions.s
+@       gcc -o pig pig_dice.s dice_functions.s ioctl_functions.s
 @
 @   Execute the program using command:
 @       ./pig
